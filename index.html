@@ -139,10 +139,8 @@
         - Format: Use emojis, bullet points (*), and numbered lists (1.) to make information easy to scan.
         - Focus: Do not deviate from the user's immediate survival needs. Stick to the mission.`;
         
-        let conversationHistory = [{
-            role: "system",
-            parts: [{ text: systemPrompt }]
-        }];
+        // **FIXED**: conversationHistory now starts empty.
+        let conversationHistory = [];
 
         function addMessage(role, text) {
             const messageWrapper = document.createElement('div');
@@ -185,7 +183,14 @@
             if (!messageText) return;
 
             addMessage('user', messageText);
-            conversationHistory.push({ role: 'user', parts: [{ text: messageText }] });
+            
+            // **FIXED**: The system prompt is now added to the first user message.
+            let userMessageForAPI = messageText;
+            if (conversationHistory.length === 0) {
+                userMessageForAPI = systemPrompt + "\n\n" + messageText;
+            }
+
+            conversationHistory.push({ role: 'user', parts: [{ text: userMessageForAPI }] });
             userInput.value = '';
             
             typingIndicator.classList.remove('hidden');
@@ -206,7 +211,7 @@
         }
 
         async function getAIResponseWithBackoff() {
-            // --- IMPORTANT: PASTE YOUR API KEY HERE ---
+            
             const apiKey = "AIzaSyBlSq9QZwi7Rn3MBQoobIesvhRuilOjiUE";
             // -----------------------------------------
 
